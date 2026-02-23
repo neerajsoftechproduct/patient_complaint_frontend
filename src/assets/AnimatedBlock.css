@@ -1,0 +1,59 @@
+.block-wrapper {
+  width: 95%;
+  margin: 40px auto;
+  padding: 20px;
+  border-radius: 10px;
+  background: #e6f0f5;
+  overflow: hidden;
+  position: relative;
+}
+
+.text-container {
+  font-size: 16px;
+  line-height: 1.6;
+  white-space: pre-line;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+
+  /* Animation */
+  position: relative;
+  animation: slideLR 2s ease-in-out infinite alternate;
+}
+
+/* Expanded state */
+.text-container.expanded {
+  -webkit-line-clamp: unset;
+  animation: none;
+}
+
+/* Animation left → right → left */
+@keyframes slideLR {
+  0% {
+    transform: translateX(0%);
+  }
+  50% {
+    transform: translateX(calc(100% - 100% + 40px)); 
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+.view-btn {
+  margin-top: 15px;
+  padding: 8px 16px;
+  border: none;
+  background: #1976d2;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  animation: 1s ease-in-out;
+}
+
+.view-btn:hover {
+  background: #125aa0;
+  animation: 1s ease-in-out;
+
+}
