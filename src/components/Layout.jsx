@@ -39,7 +39,7 @@ import PolicyIcon from "@mui/icons-material/Policy";
 
 import CommonBox from "./CommonBox";
 import { useDispatch } from "react-redux";
-import { setIcon, setPageName } from "../stores/features/commonSlices";
+import { setIcon, setPageName, setRoute } from "../stores/features/commonSlices";
 
 
 // ================= ICON MAP =================
@@ -136,8 +136,9 @@ const menuItems = [
 
 
 // ================= LAYOUT COMPONENT =================
-const Layout = ({ children, navigate }) => {
+const Layout = ({ children}) => {
   const dispatch = useDispatch();
+  
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [currentDropdown, setCurrentDropdown] = useState(null);
 
@@ -155,7 +156,9 @@ const Layout = ({ children, navigate }) => {
     dispatch(setPageName(label));
     dispatch(setIcon(iconName)); // now safe (string)
   };
-
+  const navigate=(item)=>{
+    dispatch(setRoute(item))
+  }
   return (
     <Box sx={{ minHeight: "100vh", width: "100%" }}>
       <AppBar position="sticky" sx={{ backgroundColor: "#5f7a65" }}>

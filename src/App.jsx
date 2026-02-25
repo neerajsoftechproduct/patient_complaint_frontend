@@ -36,10 +36,8 @@ import { skipToken } from "@reduxjs/toolkit/query";
 const App = () => {
   const dispatch = useDispatch();
   const user = useSelector(state => state.user)
-  console.log({user});
-  
+  const common=useSelector(state=>state.common)
 
-  const [route, setRoute] = useState("home");
   
   const { data: defaultAgentDetails } = useGetAgentIdQuery(
     user.userId ? {
@@ -75,7 +73,7 @@ const App = () => {
   
 
   const renderPage = () => {
-    switch (route) {
+    switch (common.route) {
       case "inbound":
         return <InboundLead />;
       case "consult1":
@@ -123,7 +121,7 @@ const App = () => {
     }
   };
 
-  return <Layout navigate={setRoute}>{renderPage()}</Layout>;
+  return <Layout>{renderPage()}</Layout>;
 };
 
 export default App;

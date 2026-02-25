@@ -28,6 +28,13 @@ export const userApi = createApi({
                 params
             })
         }),
+        getTodayStatics: builder.query({
+            query: (params) => ({
+                url: "/user/get-today-statics",
+                method: "GET",
+                params
+            })
+        })
 
     })
 })
@@ -35,5 +42,6 @@ export const userApi = createApi({
 export const {
     useCheckUserQuery,
     useGetAgentIdQuery,
-    useGetAgentDirectConsulationQuery
+    useGetAgentDirectConsulationQuery,
+    useGetTodayStaticsQuery
 } = userApi

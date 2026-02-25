@@ -7,10 +7,12 @@ import {
   TableRow,
   Paper
 } from '@mui/material'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import AnnouncementBlock from "../components/AnnouncementBlock";
 import { Refresh } from '@mui/icons-material';
 import { useSelector } from 'react-redux';
+import { useGetTodayStaticsQuery } from '../stores/services/userApi';
+import { skipToken } from '@reduxjs/toolkit/query';
 const data = [
   {
     agent: "Test4",
@@ -27,7 +29,25 @@ const data = [
 
 const TodayStatics = () => {
   const user = useSelector(state => state.user.agent)
-  console.log({ user });
+  const [toDisplayData, setToDisplayData] = useState([])
+  const [totalOrder, setTotalOrder] = useState(0)
+  const { data: defaultData } = useGetTodayStaticsQuery(
+    user?.uname ?
+      {
+        AgentID: user?.uname
+      } :
+      skipToken
+  )
+  console.log({ defaultData });
+
+  useEffect(() => {
+    if (defaultData?.success) {
+      setToDisplayData(defaultData?.dispositionStats)
+      setTotalOrder(defaultData?.totalOrder)
+    }
+  }, [defaultData])
+  console.log({ toDisplayData });
+
 
   return (
     <Container maxWidth="xl">
@@ -69,25 +89,25 @@ const TodayStatics = () => {
                     "Pending",
                     "Denied",
                     "NonContact"
-                    ].map((header, index) => (
-                      <TableCell
-                        key={index}
-                        sx={{
-                          color: "#fff",
-                          fontWeight: 600,
-                          border: "1px solid #ccc"
-                        }}
-                      >
-                        {header}
-                      </TableCell>
-                    ))}
+                  ].map((header, index) => (
+                    <TableCell
+                      key={index}
+                      sx={{
+                        color: "#fff",
+                        fontWeight: 600,
+                        border: "1px solid #ccc"
+                      }}
+                    >
+                      {header}
+                    </TableCell>
+                  ))}
                 </TableRow>
               </TableHead>
 
               <TableBody>
                 <TableRow>
                   <TableCell
-                  
+
                     sx={{
                       border: "1px solid #ccc"
                     }}
@@ -95,47 +115,37 @@ const TodayStatics = () => {
                     {user?.uname}
                   </TableCell>
                   <TableCell
-                  
+
                     sx={{
                       border: "1px solid #ccc"
                     }}
                   >0</TableCell>
                   <TableCell
-                  
+
                     sx={{
                       border: "1px solid #ccc"
                     }}
                   >0</TableCell>
                   <TableCell
-                  
+
                     sx={{
                       border: "1px solid #ccc"
                     }}
-                  >0</TableCell>
-                  <TableCell
-                  
-                    sx={{
-                      border: "1px solid #ccc"
-                    }}
-                  >0</TableCell>
-                  <TableCell
-                  
-                    sx={{
-                      border: "1px solid #ccc"
-                    }}
-                  >0</TableCell>
-                  <TableCell
-                  
-                    sx={{
-                      border: "1px solid #ccc"
-                    }}
-                  >0</TableCell>
-                  <TableCell
-                  
-                    sx={{
-                      border: "1px solid #ccc"
-                    }}
-                  >0</TableCell>
+                  >{totalOrder}</TableCell>
+                  {
+                    toDisplayData?.map((item, index) => {
+                      return (
+                        <TableCell
+
+                          sx={{
+                            border: "1px solid #ccc"
+                          }}
+                        >{item?.TotalCount || 0}</TableCell>
+                      )
+                    })
+
+                  }
+
 
                 </TableRow>
 

@@ -2,7 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   pageName: "Home",
-  icon: "Home", // ✅ store string instead of JSX
+  icon: "Home",
+  route: "home"
 };
 
 export const commonSlice = createSlice({
@@ -15,9 +16,12 @@ export const commonSlice = createSlice({
     setIcon: (state, action) => {
       state.icon = action.payload; // string like "Home"
     },
+    setRoute: (state, action) => {
+      state.route = action.payload
+    }
   },
 });
 
-export const { setPageName, setIcon } = commonSlice.actions;
+export const { setPageName, setIcon,setRoute } = commonSlice.actions;
 
 export default commonSlice.reducer;
