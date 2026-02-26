@@ -12,12 +12,10 @@ const head = [
   'PatientID',
   "Patient Name",
   "Clinic Name",
-  "Reminder Date",
   "Comments",
   "Appointment Status",
   "Disposition Code",
   "Created Date & Time",
-  "Updated Date & Time"
 ]
 const tc = {
   border: "1px solid #ccc"
@@ -57,7 +55,7 @@ const TodayRemider = () => {
     try {
       if (!requestId) {
         alert('Appointment or Patient Id is required')
-         return ;
+        return;
       }
       let payload = {
         AgentId: user?.uname
@@ -156,6 +154,17 @@ const TodayRemider = () => {
                           return (
                             <TableRow index={index}>
                               <TableCell>{index + 1}</TableCell>
+                              <TableCell>{item?.Problem}</TableCell>
+                              <TableCell>{item?.AppointmentID}</TableCell>
+                              <TableCell>{item?.PatientID}</TableCell>
+                              <TableCell>{item?.PatientName}</TableCell>
+                              <TableCell>{item?.ClinicName}</TableCell>
+
+                              <TableCell>{item?.Comments}</TableCell>
+                              <TableCell>{item?.AppointmentStatus}</TableCell>
+                              <TableCell>{item?.DispositionCode}</TableCell>
+                              <TableCell>{`${dayjs(item?.CreatedDate).format('YYYY-MM-DD')}:${dayjs(item?.CreatedTime).format('HH-MM A')}`}</TableCell>
+
                             </TableRow>
                           )
                         })
