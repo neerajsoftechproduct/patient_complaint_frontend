@@ -1,16 +1,12 @@
 import { Box, Button, Container, Grid, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TextField, Typography } from '@mui/material'
 import React, { useState } from 'react'
 const head = [
-  "Sl.No",
-  "Problem",
-  "AppointId",
-  'PatientID',
-  "Patient Name",
-  "Clinic Name",
-  "Comments",
-  "Appointment Status",
-  "Disposition Code",
-  "Created Date & Time",
+  "Audio Name",
+  "Description",
+  "AgentOrDoctor",
+  'CallType',
+  "PatientType",
+  "Select"
 ]
 const tc = {
   border: "1px solid #ccc"

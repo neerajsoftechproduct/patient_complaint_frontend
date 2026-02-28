@@ -6,6 +6,7 @@ import { userApi } from './services/userApi'
 import { mynotesApi } from './services/mynotesApi'
 import { itissuesApi } from './services/itissuesApi'
 import { appointmentApi } from './services/appointmentApi'
+import { ticketApi } from './services/ticketApi'
 export const store = configureStore({
     reducer: {
         common: commonReducer,
@@ -14,7 +15,8 @@ export const store = configureStore({
         [userApi.reducerPath]: userApi.reducer,
         [mynotesApi.reducerPath]: mynotesApi.reducer,
         [itissuesApi.reducerPath]: itissuesApi.reducer,
-        [appointmentApi.reducerPath]: appointmentApi.reducer
+        [appointmentApi.reducerPath]: appointmentApi.reducer,
+        [ticketApi.reducerPath]:ticketApi.reducer
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware().concat(
@@ -23,7 +25,8 @@ export const store = configureStore({
                 userApi.middleware,
                 mynotesApi.middleware,
                 itissuesApi.middleware,
-                appointmentApi.middleware
+                appointmentApi.middleware,
+                ticketApi.middleware
             ]
         ),
 })
