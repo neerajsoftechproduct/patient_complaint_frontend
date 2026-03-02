@@ -22,7 +22,7 @@ const CommonModal = ({ children, open, handleClose, width }) => {
                     p: 4,
                     borderRadius:2,
                     height:"90vh",
-                    overflow:"hidden"
+                    overflowY:"scroll"
                 }
             }>
                 {children}

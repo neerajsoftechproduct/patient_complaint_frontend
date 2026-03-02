@@ -2,13 +2,15 @@ import { Refresh } from '@mui/icons-material'
 import { Box, Button, Container, Divider, FormControl, Grid, Chip, InputLabel, Menu, MenuItem, Paper, Select, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TextField, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import Loader from '../components/Loader'
-import { useGetFilteredTicketsQuery, useGetTicketsCountQuery, useLazySearchTicketByTicketIdQuery } from '../stores/services/ticketApi'
+import { useGetFilteredTicketsQuery, useGetTicketsCountQuery, useLazyGetFilteredTicketsQuery, useLazySearchTicketByTicketIdQuery } from '../stores/services/ticketApi'
 import { toast } from 'react-toastify'
 import CommonModal from '../components/CommonModal'
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { skipToken } from '@reduxjs/toolkit/query'
+import { setIcon, setPageName, setRoute } from '../stores/features/commonSlices'
+import {setPatientId} from '../stores/features/userSlice'
 
 dayjs.extend(relativeTime);
 
@@ -21,13 +23,17 @@ const head = [
   "Created Date",
   "Ticket History",
 ]
+const head1 = ['Issue Type', 'Other Tag, If Any', 'Remarks', 'TAT', 'Ticket Status', 'Ticket Priority', 'Created By']
 const tc = {
   border: "1px solid #ccc"
 }
 const Tickets = () => {
   const user = useSelector(state => state.user.agent)
+  const dispatch = useDispatch()
   const [toDisPlayData, setToDisPlayData] = useState([])
   const [ticketData, setTicketData] = useState(null)
+  const [ticketIssue, setTicketIssue] = useState([])
+  const [searchKey, setSearchKey] = useState(0);
   const [ticketModal, setTicketModal] = useState(false)
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -39,9 +45,10 @@ const Tickets = () => {
   const [progressTicket, setProgressTicket] = useState(0)
   const [overdueTicket, setOverdueTicket] = useState(0)
   const [solvedTicket, setSolvedTicket] = useState(0)
-  const [createdOn, setCreatedOn] = useState("Last Two Months")
-  const [priority, setPriority] = useState("All")
-  const [sortBy, setSortBy] = useState("High to Low Follow-Up")
+  const [createdOn, setCreatedOn] = useState(null)
+  const [priority, setPriority] = useState(null)
+  const [sortBy, setSortBy] = useState(null)
+  const [ticketStatus, setTicketStatus] = useState(null)
   const { data: ticketsCount, refetch: refetchCount, isFetching } = useGetTicketsCountQuery(
     user?.uname ?
       {
@@ -53,34 +60,75 @@ const Tickets = () => {
     user?.uname ?
       {
         uname: user?.uname,
-        status: 'Open,Pending,Pending'
+        status: 'Open,Progress,Pending'
       }
       : skipToken
   )
+  const [
+    GetFilteredTickets,
+    {
+      data: filteredTicketsData,
+      isLoading
+    }
+  ] = useLazyGetFilteredTicketsQuery()
+
+  const handleSearchTicketsData = () => {
+    const payload = {
+      uname: user?.uname
+    }
+    if (ticketStatus) {
+      payload.status = ticketStatus
+    }
+    if (createdOn) {
+      payload.CreatedDate = createdOn
+    }
+    if (priority) {
+      payload.PriorityBy = priority
+    }
+    if (sortBy) {
+      payload.SortBy = sortBy
+    }
+    console.log({ payload });
+
+    GetFilteredTickets(payload)
+  }
+  const handleClearFilter = () => {
+    setCreatedOn(null)
+    setPriority(null)
+    setSortBy(null)
+  }
+  useEffect(() => {
+    handleSearchTicketsData()
+  }, [ticketStatus, createdOn, createdOn, priority, sortBy])
+
   useEffect(() => {
     if (getDefaultTickets?.data) {
       setToDisPlayData(getDefaultTickets?.data)
     }
   }, [getDefaultTickets])
   useEffect(() => {
-    if (ticketsCount?.data) {
-
-      setAllTickets(
-        Number(ticketsCount?.data?.Open) ?? 0 +
-        Number(ticketsCount?.data?.Pending) ?? 0 +
-        Number(ticketsCount?.data?.Progress) ?? 0
-      )
-      setOpenTicket(ticketsCount?.data?.Open)
-      setPendingTickets(ticketsCount?.data?.Pending)
-      setProgressTicket(ticketsCount?.data?.Progress)
-      setOverdueTicket(
-        Number(ticketsCount?.data?.Open) ?? 0 +
-        Number(ticketsCount?.data?.Pending) ?? 0 +
-        Number(ticketsCount?.data?.Progress) ?? 0
-      )
-      setSolvedTicket(ticketsCount?.data?.Solved)
+    if (filteredTicketsData?.data) {
+      setToDisPlayData(filteredTicketsData?.data)
     }
-  }, [ticketsCount])
+  }, [filteredTicketsData])
+  useEffect(() => {
+    if (ticketsCount?.data) {
+      const open = Number(ticketsCount?.data?.Open ?? 0);
+      const pending = Number(ticketsCount?.data?.Pending ?? 0);
+      const progress = Number(ticketsCount?.data?.Progress ?? 0);
+      const solved = Number(ticketsCount?.data?.Solved ?? 0);
+
+      const total = open + pending + progress;
+
+      setOpenTicket(open);
+      setPendingTickets(pending);
+      setProgressTicket(progress);
+      setSolvedTicket(solved);
+
+      setAllTickets(total);
+      setOverdueTicket(total); // same logic as before
+    }
+  }, [ticketsCount]);
   const [
     filteredTickets, {
       data: filteredData,
@@ -111,7 +159,6 @@ const Tickets = () => {
     filteredTickets({
       ticketID: ticket
     })
-
   }
   useEffect(() => {
 
@@ -122,7 +169,21 @@ const Tickets = () => {
 
   }, [filteredData])
 
-  if (filteredFetching || isFetching) {
+  useEffect(() => {
+    if (searchKey === 0) return;
+
+    if (searchKey === 0) {
+      toast.warning('Please Enter Ticket Id');
+      return;
+    }
+
+    filteredTickets({ ticketID: searchKey });
+
+  }, [searchKey])
+
+
+
+  if (filteredFetching || isFetching || isLoading) {
     return <Loader />
   }
 
@@ -160,6 +221,12 @@ const Tickets = () => {
     return "default";
   };
 
+  const handleNavigate = (ptId) => {
+    dispatch(setPatientId(ptId))
+    dispatch(setPageName('Patient Details'));
+    dispatch(setIcon('Patient'));
+    dispatch(setRoute('patient-details'))
+  }
 
 
 
@@ -179,7 +246,8 @@ const Tickets = () => {
           <Button endIcon={<Refresh />} variant='contained'
             onClick={() => {
               refetchCount();
-              refetchTickets()
+              refetchTickets();
+              handleClearFilter()
             }}
           >Refresh Here For All Tickets</Button>
         </Grid>
@@ -199,8 +267,9 @@ const Tickets = () => {
               },
               display: "flex",
               justifyContent: "center",
-              alignItems: "center"
+              alignItems: "center",
             }}
+            onClick={() => setTicketStatus('Open,Progress,Pending')}
           >
             <Typography variant="h6" fontWeight={600}>
               All Tickets
@@ -255,9 +324,24 @@ const Tickets = () => {
               },
             }}
           >
-            <MenuItem onClick={handleClose}>{`Open (${openTicket || 0})`}</MenuItem>
-            <MenuItem onClick={handleClose}>{`Pending (${pendingTicket || 0})`}</MenuItem>
-            <MenuItem onClick={handleClose}>{`Progress (${progressTicket || 0})`}</MenuItem>
+            <MenuItem
+              onClick={() => {
+                setTicketStatus('Open')
+                handleClose()
+              }}
+            >{`Open (${openTicket || 0})`}</MenuItem>
+            <MenuItem
+              onClick={() => {
+                setTicketStatus('Pending')
+                handleClose()
+              }}
+            >{`Pending (${pendingTicket || 0})`}</MenuItem>
+            <MenuItem
+              onClick={() => {
+                setTicketStatus('Progress')
+                handleClose()
+              }}
+            >{`Progress (${progressTicket || 0})`}</MenuItem>
 
           </Menu>
         </Grid>
@@ -279,6 +363,7 @@ const Tickets = () => {
               justifyContent: "center",
               alignItems: "center"
             }}
+            onClick={() => setTicketStatus('Open,Progress,Pending')}
           >
             <Typography variant="h6" fontWeight={600}>
               Overdue Tickets
@@ -306,6 +391,7 @@ const Tickets = () => {
               justifyContent: "center",
               alignItems: "center"
             }}
+            onClick={() => setTicketStatus('Solved')}
           >
             <Typography variant="h6" fontWeight={600}>
               Solved
@@ -338,8 +424,8 @@ const Tickets = () => {
               <Select
                 labelId="Priority:"
                 label="Priority:"
-                value={priority}
-                onChange={(e) => setPriority(e.target.value)}
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
               >
                 <MenuItem value="All" >All</MenuItem>
                 <MenuItem value="Normal" >Normal</MenuItem>
@@ -353,8 +439,8 @@ const Tickets = () => {
               <Select
                 labelId="Sort By:"
                 label="Sort By:"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
+                value={priority}
+                onChange={(e) => setPriority(e.target.value)}
               >
                 <MenuItem value="High to Low Follow-Up" >High to Low Follow-Up</MenuItem>
                 <MenuItem value="Low to High Follow-Up" >Low to High Follow-Up</MenuItem>
@@ -396,13 +482,19 @@ const Tickets = () => {
                           return (
                             <TableRow index={index}>
                               <TableCell>{index + 1}</TableCell>
-                              <TableCell>{item?.TicketID}</TableCell>
+                              <TableCell   >{item?.TicketID}</TableCell>
                               <TableCell>{item?.TicketStatus}</TableCell>
-                              <TableCell>{item?.PatientID}</TableCell>
+                              <TableCell
+                                sx={{ cursor: "pointer", color: "blue", textDecoration: "underline" }}
+                                onClick={() => handleNavigate(item?.PatientID)}
+                              >{item?.PatientID}</TableCell>
                               <TableCell>{item?.CreatedBy}</TableCell>
-                              <TableCell>{`${dayjs(item?.CreatedOn).format('YYYY-MM-DD')}`}</TableCell>
-                              <TableCell>
-                                {'View Ticket'}
+                              {/* <TableCell>{`${dayjs(item?.CreatedOn).format('YYYY-MM-DD')}`}</TableCell> */}
+                              <TableCell>{dayjs(ticketData.CreatedOn).fromNow()}</TableCell>
+                              <TableCell
+                                sx={{ cursor: "pointer", color: "blue", textDecoration: "underline" }}
+                                onClick={() => setSearchKey(item?.TicketID)} >
+                                {`View Ticket(${item?.ChildTicketCount})`}
                               </TableCell>
                             </TableRow>
                           )
@@ -493,18 +585,44 @@ const Tickets = () => {
                 </TableBody>
               </Table>
             </TableContainer>
-            {/* <Typography><strong>Order No.:</strong> 00000</Typography>
-            <Typography><strong>Tag Name:</strong> 00000</Typography>
-            <Typography><strong>Agent Consultant Name:</strong> 00000</Typography>
-            <Typography><strong>Ticket Subtype:</strong> 00000</Typography>
-            <Typography><strong>Ticket Subtype(Others):</strong> 00000</Typography>
-            <Typography><strong>Department:</strong> 00000</Typography>
-            <Typography><strong>Comments(General Type):</strong> 00000</Typography>
-            <Typography><strong>Current Ticket Status:</strong> 00000</Typography>
-            <Typography><strong>Current Ticket Priority:</strong> 00000</Typography>
-            <Typography><strong>Created By:</strong> 00000</Typography>
-            <Typography><strong>Ticket Type:</strong> 00000</Typography> */}
+           
+          </Grid>
+          <Grid size={12} >
+            <Paper>
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    {
+                      head1.map((header, index) => (
+                        <TableCell
+                          key={index}
+                          sx={{
+                            // color: "#fff",
+                            fontWeight: 600,
+                            border: "1px solid #ccc",
+                            fontSize: "0.7rem"
+                          }}
+                        >
+                          {header}
+                        </TableCell>
+                      ))
+                    }
+                  </TableHead>
+                  <TableBody>
 
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <TablePagination
+                component="div"
+                count={ticketIssue?.length}
+                page={page}
+                onPageChange={handleChangePage}
+                rowsPerPage={rowsPerPage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+                rowsPerPageOptions={[5, 10, 25]}
+              />
+            </Paper>
           </Grid>
         </Grid>
       </CommonModal>

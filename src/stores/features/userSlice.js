@@ -4,7 +4,8 @@ const initialState = {
     userId: null,
     sessionId: null,
     campaignId: null,
-    agent: null
+    agent: null,
+    patientId: null
 }
 
 export const userSlice = createSlice({
@@ -22,10 +23,13 @@ export const userSlice = createSlice({
         },
         setAgent: (state, action) => {
             state.agent = action.payload
+        },
+        setPatientId: (state, action) => {
+            state.patientId = action.payload
         }
     }
 })
 
-export const { setUserId, setSessionId, setCampaignId, setAgent } = userSlice.actions;
+export const { setUserId, setSessionId, setCampaignId, setAgent, setPatientId } = userSlice.actions;
 
 export default userSlice.reducer;

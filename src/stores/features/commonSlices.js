@@ -3,7 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   pageName: "Home",
   icon: "Home",
-  route: "home"
+  route: "home",
+  
 };
 
 export const commonSlice = createSlice({

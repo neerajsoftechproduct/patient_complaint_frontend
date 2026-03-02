@@ -32,6 +32,7 @@ import {
 } from "./stores/features/userSlice";
 import { useGetAgentIdQuery } from "./stores/services/userApi";
 import { skipToken } from "@reduxjs/toolkit/query";
+import PatientDetails from "./pages/PatientDetails";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -116,6 +117,8 @@ const App = () => {
         return <FeedbackCalling />;
       case "my-notes":
         return <MyNotes />;
+      case "patient-details":
+        return <PatientDetails />
       default:
         return <Home />;
     }

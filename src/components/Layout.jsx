@@ -99,13 +99,13 @@ const menuItems = [
       { label: "Non-Contract", icon: "RemoveCircleOutline", path: "non-contract" },
     ],
   },
-  {
-    label: "IT Issue",
-    icon: "BugReport",
-    dropdown: [
-      { label: "Submit Issues", icon: "BugReport", path: "submit-issues" },
-    ],
-  },
+  // {
+  //   label: "IT Issue",
+  //   icon: "BugReport",
+  //   dropdown: [
+  //     { label: "Submit Issues", icon: "BugReport", path: "submit-issues" },
+  //   ],
+  // },
   {
     label: "Statistics",
     icon: "BarChart",

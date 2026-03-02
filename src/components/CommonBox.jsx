@@ -28,7 +28,7 @@ import InsightsIcon from "@mui/icons-material/Insights";
 import FeedbackIcon from "@mui/icons-material/Feedback";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import PolicyIcon from "@mui/icons-material/Policy";
-
+import AccessibleIcon from '@mui/icons-material/Accessible';
 // 🔥 Central icon map
 const iconMap = {
   Home: HomeIcon,
@@ -56,13 +56,15 @@ const iconMap = {
   Feedback: FeedbackIcon,
   Visibility: VisibilityIcon,
   Policy: PolicyIcon,
+  Patient: AccessibleIcon
 };
 
 const CommonBox = ({ children }) => {
   const { pageName, icon } = useSelector((state) => state.common);
 
   const IconComponent = iconMap[icon];
-
+  console.log({ pageName, icon});
+  
   return (
     <Container maxWidth="xl">
       <Box
